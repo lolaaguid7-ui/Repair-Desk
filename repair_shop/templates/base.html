@@ -1,0 +1,24 @@
+{% from 'macros.html' import icon %}
+<!doctype html>
+<html lang="en" dir="ltr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102a56">
+<title>{{ title }} · Repair Desk</title><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/static/app.css"><script src="/static/app.js" defer></script></head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<aside class="sidebar">
+ <a href="/" class="brand"><span class="brand-icon">{{ icon('tool',25) }}</span><span>repair<span class="brand-light">desk</span><small>YOUR WORKSHOP, IN ORDER</small></span></a>
+ <div class="nav-caption">WORKSPACE</div>
+ <nav aria-label="Main navigation">{% for path,label,symbol in [('/', 'Dashboard','grid'),('/orders','Repair Orders','orders'),('/customers','Customers','users'),('/technicians','Technicians','tool')] %}
+ <a href="{{ path }}" class="nav-link{% if (path=='/' and current_path=='/') or (path!='/' and current_path.startswith(path)) %} active{% endif %}" {% if (path=='/' and current_path=='/') or (path!='/' and current_path.startswith(path)) %}aria-current="page"{% endif %}>{{ icon(symbol) }}<span>{{ label }}</span></a>
+ {% endfor %}</nav>
+ <div class="sidebar-bottom"><div class="workspace-note">{{ icon('monitor',25) }}<strong>Your local workspace</strong><p>Every repair. Every payment.<br>Right where you need it.</p></div>
+ <a href="/currency" class="nav-link settings-link">{{ icon('settings') }}<span>Shop currency</span><small>{{ settings.currency or 'Set up' }}</small></a>
+ <div class="local-note"><span aria-hidden="true"></span> Saved on this computer</div></div>
+</aside>
+<div class="workspace"><header class="topbar"><div class="breadcrumb"><span>Workspace</span>{{ icon('chevron',13) }}<strong>{{ title }}</strong></div><div class="topbar-actions"><a href="/currency" class="currency-link" aria-label="Shop currency">{{ settings.currency or 'Currency' }}</a><span class="local-pill"><span aria-hidden="true"></span> Local mode</span></div></header>
+<main id="main-content" tabindex="-1">
+{% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="notice {{ category }}" role="status">{{ icon('check',18) }}<span>{{ message }}</span></div>{% endfor %}{% endwith %}
+{% if error %}<div class="notice error" role="alert"><strong>We couldn't save that change.</strong><span>{{ error.message }}</span></div>{% endif %}
+{% block content %}{% endblock %}
+</main><footer><span>Repair Desk <span class="footer-dot">·</span> A little more order.</span><span>Private. Local. Ready to work.</span></footer></div>
+</body></html>

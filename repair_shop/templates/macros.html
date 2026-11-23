@@ -1,0 +1,31 @@
+{% macro icon(name, size=20) -%}
+{% set paths = {'grid':'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z','tool':'M14 6a5 5 0 0 0-6 6L3 17a3 3 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4z','orders':'M6 4h12v17H6z M9 2h6v4H9z M9 10h6 M9 14h6 M9 18h3','users':'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M17 4a4 4 0 0 1 0 7 M22 21v-2a4 4 0 0 0-3-3.9','arrow':'M5 12h14 M13 6l6 6-6 6','plus':'M12 5v14 M5 12h14','check':'M5 12l4 4L19 6','clock':'M12 8v4l3 2 M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20','wallet':'M3 5h17v15H3z M3 8h17 M16 12h6v5h-6z','chevron':'M9 5l7 7-7 7','back':'M19 12H5 M11 6l-6 6 6 6','monitor':'M3 3h18v13H3z M8 21h8 M12 16v5','search':'M21 21l-5-5 M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14','settings':'M4 7h16 M4 17h16 M8 4v6 M16 14v6'} %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ paths.get(name,paths.tool) }}"/></svg>
+{%- endmacro %}
+
+{% macro badge(status) %}<span class="badge {{ status|status_class }}"><span aria-hidden="true"></span>{{ status }}</span>{% endmacro %}
+{% macro amount(value, currency) %}<span class="money">{{ currency }} {{ value|cash }}</span>{% endmacro %}
+{% macro csrf(token) %}<input type="hidden" name="csrf_token" value="{{ token }}">{% endmacro %}
+{% macro field(name, label, data, errors, type='text', required=false, placeholder='', maxlength=none, hint='', textarea=false) %}
+<div class="field{% if errors.get(name) %} invalid{% endif %}">
+  <label for="{{ name }}">{{ label }}{% if required %}<span class="required" aria-hidden="true"> *</span>{% else %}<span class="optional">Optional</span>{% endif %}</label>
+  {% if textarea %}<textarea id="{{ name }}" name="{{ name }}" rows="5" {% if required %}required{% endif %} {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} aria-invalid="{{ 'true' if errors.get(name) else 'false' }}" aria-describedby="{{ name }}-help {{ name }}-error" placeholder="{{ placeholder }}">{{ data.get(name,'') }}</textarea>
+  {% else %}<input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ data.get(name,'') }}" {% if required %}required{% endif %} {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} {% if name in ['price','amount'] %}inputmode="decimal"{% endif %} aria-invalid="{{ 'true' if errors.get(name) else 'false' }}" aria-describedby="{{ name }}-help {{ name }}-error" placeholder="{{ placeholder }}">{% endif %}
+  <small id="{{ name }}-help" class="hint">{{ hint }}</small>
+  <span id="{{ name }}-error" class="field-error">{{ errors.get(name,'') }}</span>
+</div>
+{% endmacro %}
+
+{% macro order_list(orders, currency, compact=false) %}
+<div class="order-table"><table><thead><tr><th>Order / device</th><th>Customer</th><th>Technician</th><th>Status</th><th>Price</th><th>Paid</th><th>Remaining</th><th>Received</th></tr></thead>
+<tbody>{% for o in orders %}<tr>
+<td data-label="Order"><a class="order-link" href="/orders/{{ o.id }}">{{ o.order_no }} {{ icon('chevron',14) }}</a><small>{{ o.brand or o.device_type }}{% if o.brand %} · {{ o.device_type }}{% endif %}</small></td>
+<td data-label="Customer"><a href="/customers/{{ o.customer_id }}">{{ o.customer_name }}</a></td>
+<td data-label="Technician">{{ o.tech_name or 'Unassigned' }}</td>
+<td data-label="Status">{{ badge(o.status) }}</td>
+<td data-label="Price">{{ amount(o.price_minor,currency) }}</td>
+<td data-label="Paid">{{ amount(o.paid_minor,currency) }}</td>
+<td data-label="Remaining">{{ amount(o.balance_minor,currency) }}</td>
+<td data-label="Received" class="date">{{ o.received_at|date_label }}</td>
+</tr>{% endfor %}</tbody></table></div>
+{% endmacro %}

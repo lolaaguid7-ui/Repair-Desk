@@ -1,0 +1,6 @@
+.venv/
+.test-work/
+.pytest_cache/
+__pycache__/
+data/
+*.log

@@ -1,0 +1,11 @@
+.env
+.env.*
+*.sqlite
+*.sqlite3
+*.db
+*.log
+__pycache__/
+.venv/
+.pytest_cache/
+.test-work/
+data/
